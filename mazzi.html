@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>I miei mazzi</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    h1 { margin-bottom: 1em; }
+    ul { list-style: none; padding-left: 0; }
+    li { margin-bottom: 1em; border: 1px solid #ccc; padding: 1em; border-radius: 8px; }
+    button { margin-left: 0.5em; }
+    a { display: inline-block; margin-top: 1em; }
+  </style>
+</head>
+<body>
+  <h1>I miei mazzi salvati</h1>
+  <ul id="listaMazzi"></ul>
+  <a href="index.html">⬅️ Torna al sito</a>
+
+  <script>
+    const lista = document.getElementById('listaMazzi');
+
+    for (let key in localStorage) {
+      if (key.startsWith('mazzo_')) {
+        const nome = key.replace('mazzo_', '');
+        const li = document.createElement('li');
+        const mazzo = JSON.parse(localStorage.getItem(key));
+
+        li.innerHTML = `<strong>${nome}</strong><br>
+          ${Object.entries(mazzo).map(([nome, n]) => `${nome} x${n}`).join('<br>')}
+          <br>
+          <button onclick="carica('${key}')">Carica in sito</button>
+          <button onclick="elimina('${key}')">Elimina</button>`;
+
+        lista.appendChild(li);
+      }
+    }
+
+    function carica(chiave) {
+      const mazzo = localStorage.getItem(chiave);
+      localStorage.setItem('mazzo_corrente', mazzo);
+      alert('Mazzo caricato! Vai alla home.');
+    }
+
+    function elimina(chiave) {
+      if (confirm("Sicuro di voler eliminare questo mazzo?")) {
+        localStorage.removeItem(chiave);
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
