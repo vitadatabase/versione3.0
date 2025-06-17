@@ -39,9 +39,18 @@
       text-shadow: 1px 1px 1px rgba(255,255,255,0.3);
     }
 
+    .content {
+      background-color: rgba(255, 255, 255, 0.95);
+      margin: 80px auto 40px auto;
+      padding: 30px;
+      max-width: 1000px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
     input[type="text"], select {
       padding: 0.5em;
-      margin: 80px 1em 1em 0;
+      margin: 0.5em 1em 1em 0;
     }
 
     .card {
@@ -119,7 +128,9 @@
 <body>
   <header><a href="home.html">VITA</a></header>
 
-  <!-- Il resto del contenuto della pagina, incluso il codice JavaScript e HTML per le carte, popup ecc. -->
+  <div class="content">
+    <!-- Il contenuto principale della pagina va qui -->
+  </div>
 
   <div class="overlay" id="overlay"></div>
   <div class="popup" id="popup">
