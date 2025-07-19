@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Albo d'Oro dei Mazzi</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2em; background: #f9f9f9; }
+    h1 { text-align: center; }
+    .mazzo {
+      background: white;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+      max-width: 600px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .mazzo-header {
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+    pre {
+      background: #eee;
+      padding: 1em;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Albo d'Oro dei Mazzi</h1>
+  <div id="listaMazzi">Caricamento mazzi...</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "xxx",
+      authDomain: "xxx.firebaseapp.com",
+      projectId: "xxx",
+      storageBucket: "xxx",
+      messagingSenderId: "xxx",
+      appId: "xxx"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function caricaMazzi() {
+      const listaDiv = document.getElementById('listaMazzi');
+      listaDiv.textContent = 'Caricamento mazzi in corso...';
+
+      try {
+        const q = query(collection(db, "mazzi"), orderBy("timestamp", "desc"));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          listaDiv.textContent = 'Nessun mazzo caricato.';
+          return;
+        }
+
+        listaDiv.innerHTML = '';
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const mazzoDiv = document.createElement('div');
+          mazzoDiv.className = 'mazzo';
+
+          mazzoDiv.innerHTML = `
+            <div class="mazzo-header">Utente: ${escapeHtml(data.username)} - Mazzo: ${escapeHtml(data.nomeMazzo)}</div>
+            <pre>${escapeHtml(JSON.stringify(data.mazzo, null, 2))}</pre>
+          `;
+
+          listaDiv.appendChild(mazzoDiv);
+        });
+
+      } catch(e) {
+        listaDiv.textContent = 'Errore nel caricamento: ' + e.message;
+      }
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;");
+    }
+
+    caricaMazzi();
+  </script>
+</body>
+</html>
