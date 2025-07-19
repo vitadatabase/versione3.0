@@ -70,44 +70,36 @@
     }
   </style>
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
-  // Metti qui la tua configurazione reale di Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyAVDt2e7O1cUVCFCKuet1ohIvpBdJjTnZo",
-    authDomain: "albo-d-oro-vita-tgc.firebaseapp.com",
-    projectId: "albo-d-oro-vita-tgc",
-    storageBucket: "albo-d-oro-vita-tgc.firebasestorage.app",
-    messagingSenderId: "750854799573",
-    appId: "1:750854799573:web:416499f272bee07d6f625c"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Funzione per caricare un mazzo su Firestore
-  async function caricaMazzoFirebase(nomeMazzo, mazzoData) {
-    try {
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyAVDt2e7O1cUVCFCKuet1ohIvpBdJjTnZo",
+      authDomain: "albo-d-oro-vita-tgc.firebaseapp.com",
+      projectId: "albo-d-oro-vita-tgc",
+      storageBucket: "albo-d-oro-vita-tgc.firebasestorage.app",
+      messagingSenderId: "750854799573",
+      appId: "1:750854799573:web:416499f272bee07d6f625c"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+  
+    // Espone funzione per caricare un mazzo
+    window.caricaMazzoFirebase = async function(nomeMazzo, mazzoData) {
       const username = prompt("Inserisci il tuo nome utente per questo mazzo") || "Anonimo";
-      await addDoc(collection(db, "mazzi"), {
-        username,
-        nomeMazzo,
-        mazzo: mazzoData,
-        timestamp: serverTimestamp()
-      });
-      alert(`Mazzo "${nomeMazzo}" caricato su Albo d'Oro!`);
-    } catch (e) {
-      console.error(e);
-      alert("Errore nel caricamento: " + e.message);
-    }
-}
-
-    }
-  }
-
-  // Espongo la funzione globale perché la chiamerai dai bottoni in pagina
-  window.caricaMazzoFirebase = caricaMazzoFirebase;
+      try {
+        await addDoc(collection(db, "mazzi"), {
+          username,
+          nomeMazzo,
+          mazzo: mazzoData,
+          timestamp: serverTimestamp()
+        });
+        alert(`Mazzo "${nomeMazzo}" caricato sull'Albo d'Oro!`);
+      } catch (err) {
+        alert("Errore nel caricamento: " + err.message);
+      }
+    };
   </script>
 </head>
 <body>
@@ -186,13 +178,15 @@
           const buttonsDiv = document.createElement('div');
           buttonsDiv.className = 'mazzo-buttons';
 
-          // Carica
+          // Carica su Albo d'Oro
           const btnCarica = document.createElement('button');
           btnCarica.textContent = 'Carica';
           btnCarica.onclick = () => {
-            caricaMazzoFirebase(nomeMazzo, mazzo);
-          };
-
+            if (typeof caricaMazzoFirebase === "function") {
+              caricaMazzoFirebase(nomeMazzo, mazzo);
+            } else {
+              alert("Funzione caricaMazzoFirebase non disponibile.");
+            }
           };
           buttonsDiv.appendChild(btnCarica);
 
