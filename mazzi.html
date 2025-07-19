@@ -98,7 +98,11 @@
       });
       alert(`Mazzo "${nomeMazzo}" caricato su Albo d'Oro!`);
     } catch (e) {
+      console.error(e);
       alert("Errore nel caricamento: " + e.message);
+    }
+}
+
     }
   }
 
@@ -187,13 +191,6 @@
           btnCarica.textContent = 'Carica';
           btnCarica.onclick = () => {
             caricaMazzoFirebase(nomeMazzo, mazzo);
-            .then(() => {
-            alert(`Il mazzo "${nomeMazzo}" è stato caricato sull'Albo d'Oro!`);
-            })
-            .catch((error) => {
-            console.error("Errore durante il caricamento:", error);
-            alert("Errore nel caricamento. Riprova più tardi.");
-            });
           };
 
           };
