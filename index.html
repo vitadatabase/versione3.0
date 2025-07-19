@@ -258,33 +258,9 @@ document.getElementById('salvaMazzo').onclick = () => {
   alert('Mazzo salvato come "' + nome + '"');
 };
 
-const setFiles = {
-  "unnuovoinizio.json": "UN NUOVO INIZIO",
-  "dietrolequinte.json": "DIETRO LE QUINTE",
-};
-
-const setFolder = window.location.pathname.replace(/\/[^\/]*$/, '/') + 'json/';
-
-// Carica tutti i file JSON e aggiungi a ogni carta il nome "bello" del set
-Promise.all(
-  Object.entries(setFiles).map(([file, nomeSet]) =>
-    fetch(setFolder + file)
-      .then(r => r.json())
-      .then(carte => carte.map(c => ({ ...c, SET: nomeSet })))
-  )
-).then(dataArrays => {
-  tutteLeCarte = dataArrays.flat();
-  mostraCarte(tutteLeCarte);
-
-  // Popola dinamicamente il filtro SET con i nomi belli
-  const filtroSet = document.getElementById('filtroSet');
-  Object.values(setFiles).forEach(nomeSet => {
-    const opt = document.createElement('option');
-    opt.textContent = nomeSet;
-    filtroSet.appendChild(opt);
-  });
-});
-
+fetch('cards.json')
+  .then(r => r.json())
+  .then(data => { tutteLeCarte = data; mostraCarte(data); });
 
 function filtraCarte() {
   const testo = document.getElementById('search').value.toLowerCase();
