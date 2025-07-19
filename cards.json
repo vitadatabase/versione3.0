@@ -3095,7 +3095,7 @@
     "TIPO": "OGGETTO",
     "PIETRA": "RUBINO",
     "SET": "DIETRO LE QUINTE",
-    "EFFETTI": "SONO MORTI TUTTI I PESCI - IMPEGNA + PAGA 3 INCHIOSTRO: Esilia tutti i tuoi personaggi. Guadagna leggenda pari al totale delle loro LEGGENDA."
+    "EFFETTI": "SONO MORTI TUTTI I PESCI - IMPEGNA + PAGA 3 INCHIOSTRO: Esilia tutti i tuoi personaggi. Guadagna leggenda pari al numero dei personaggi esiliati."
   },
   {
     "ID": 206,
