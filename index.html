@@ -196,7 +196,7 @@
   <div id="messaggioAggiunta">Carta aggiunta al mazzo!</div>
 
   <div id="sidebar">
-    <select id="filtroSet"><option value="">SET</option><option>UN NUOVO INIZIO</option></select>
+    <select id="filtroSet"><option value="">SET</option><option>UN NUOVO INIZIO</option><option>DIETRO LE QUINTE</option></select>
     <select id="filtroPietra"><option value="">PIETRA</option><option>ACCIAIO</option><option>AMBRA</option><option>AMETISTA</option><option>RUBINO</option><option>SMERALDO</option><option>ZAFFIRO</option></select>
     <select id="filtroRarita"><option value="">RARITÀ</option><option>COMUNE</option><option>NON COMUNE</option><option>RARO</option><option>SUPER RARO</option><option>LEGGENDARIO</option><option>PROMO</option></select>
     <select id="filtroClassificazione">
@@ -309,7 +309,7 @@ function mostraCarte(carte) {
   carte.forEach(carta => {
     const div = document.createElement('div'); div.className='card-wrapper';
     const img = document.createElement('img');
-    img.src = `img/${carta["N."]}.jpg`;
+    img.src = `img/${carta["ID"]}.jpg`;
     img.alt = carta["NOME CARTA"];
     img.className = 'card-img';
     if ((carta["RARITA'"]||'').toUpperCase()==='PROMO') {
@@ -363,7 +363,7 @@ function apriPopup(carta) {
   cartaAttiva = carta;
   const cont = document.getElementById('popup-content');
   cont.innerHTML = `
-    <img src="img/${carta["N."]}.jpg" alt="">
+    <img src="img/${carta["ID"]}.jpg" alt="">
     <br>
     <button onclick="mostraDettagli()">📄 Dettagli testuali</button>
     <button onclick="aggiungiAlMazzo('${carta["NOME CARTA"]}')">➕ Aggiungi al mazzo</button>
