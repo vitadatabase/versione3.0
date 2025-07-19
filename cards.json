@@ -2316,7 +2316,7 @@
   },
   {
     "ID": 153,
-    "NOME CARTA": "GABRIELE - Sostituto Don Din",
+    "NOME CARTA": "EZIO - Sostituto Don Din",
     "N.": 153,
     "RARITA'": "NON COMUNE",
     "COSTO": 1,
@@ -2328,7 +2328,7 @@
     "FORZA": 1,
     "VITA": 2,
     "VAL. LEGGENDA": 1,
-    "EFFETTI": "STO IMPARANDO - Quando giochi questo personaggio, rimuovi fino a 1 danno da un tuo personaggio a tua scelta."
+    "EFFETTI": "DAJE - Quando giochi questo personaggio, rimuovi fino a 1 danno da un tuo personaggio a tua scelta."
   },
   {
     "ID": 154,
@@ -2378,7 +2378,7 @@
     "VITA": 7,
     "VAL. LEGGENDA": 3,
     "ABILITA'": "Trasformazione 5",
-    "EFFETTI": "�OGNUNO DECIDEVA PER SE� - Quando giochi questo personaggio, puoi scegliere una carta canzone nei tuoi scarti. Scegli: \n1. Aggiungila alla tua mano \n2. Mettila nel tuo calamaio, a faccia in giu'."
+    "EFFETTI": "OGNUNO DECIDEVA PER SE' - Quando giochi questo personaggio, puoi scegliere una carta canzone nei tuoi scarti. Scegli: \n1. Aggiungila alla tua mano \n2. Mettila nel tuo calamaio, a faccia in giu'."
   },
   {
     "ID": 157,
