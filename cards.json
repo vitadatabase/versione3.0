@@ -63,7 +63,7 @@
     "FORZA": 1,
     "VITA": 3,
     "VAL. LEGGENDA": 1,
-    "EFFETTI": "OFFRIREI CASA MIA� - Quando giochi questo personaggio, se hai in gioco un luogo, pesca una carta."
+    "EFFETTI": "OFFRIREI CASA MIA... - Quando giochi questo personaggio, se hai in gioco un luogo, pesca una carta."
   },
   {
     "ID": 5,
@@ -179,7 +179,7 @@
     "FORZA": 1,
     "VITA": 5,
     "VAL. LEGGENDA": 2,
-    "EFFETTI": "PER LO SPETTACOLO DOVRESTI METTERE� - Alla fine del tuo turno, se questo personaggio e' impegnato, puoi preparare uno dei tuoi altri personaggi a tua scelta."
+    "EFFETTI": "PER LO SPETTACOLO DOVRESTI METTERE... - Alla fine del tuo turno, se questo personaggio e' impegnato, puoi preparare uno dei tuoi altri personaggi a tua scelta."
   },
   {
     "ID": 12,
