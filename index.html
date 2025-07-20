@@ -185,6 +185,14 @@
       max-width: 80%; max-height: 80%;
       overflow: auto;
     }
+      .btn-add {
+      background: none;
+      border: none;
+      padding: 0;
+      margin-top: 5px;
+      cursor: pointer;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
@@ -273,7 +281,10 @@ function filtraCarte() {
   const sortBy = document.getElementById('sortBy').value;
 
   let filtrate = tutteLeCarte.filter(c =>
-    (!testo || (c["NOME CARTA"]||'').toLowerCase().includes(testo)) &&
+    (!testo || (
+      (c["NOME CARTA"] || '').toLowerCase().includes(testo) ||
+      (c["EFFETTO"] || '').toLowerCase().includes(testo)
+    )) &&
     (!set || (c.SET||'').toLowerCase() === set) &&
     (!pietra || (c.PIETRA||'').toLowerCase() === pietra) &&
     (!rarita || (c["RARITA'"]||'').toLowerCase() === rarita) &&
@@ -318,11 +329,20 @@ function mostraCarte(carte) {
     }
     img.onclick = () => apriPopup(carta);
     const btn = document.createElement('button');
-    btn.textContent = '+';
+    btn.className = 'btn-add';
     btn.onclick = () => aggiungiAlMazzo(carta["NOME CARTA"]);
+    
+    const imgBtn = document.createElement('img');
+    imgBtn.src = 'symbols/add.jpg';
+    imgBtn.alt = 'Aggiungi';
+    imgBtn.style.width = '30px';
+    imgBtn.style.height = '30px';
+    imgBtn.style.borderRadius = '50%';
+    imgBtn.style.objectFit = 'cover';
+    
+    btn.appendChild(imgBtn);
     div.appendChild(img);
     div.appendChild(btn);
-    c.appendChild(div);
   });
 }
 
