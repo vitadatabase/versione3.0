@@ -17,6 +17,7 @@
     header {
       display: flex;
       align-items: center;
+      justify-content: center;
       height: 60px;
     }
     header button {
@@ -145,8 +146,8 @@
           const mazzoDiv = document.createElement('div');
           mazzoDiv.className = 'mazzo';
 
-          const carteHtml = Object.entries(m.mazzo).map(([id, c]) => `
-            const cartaDb = cardsDatabase.find(card => card["NOME CARTA"] === nomeCarta);
+          const carteHtml = Object.entries(m.mazzo).map(([id, c]) => {
+            const cartaDb = cardsDatabase.find(card => card["NOME CARTA"] === c.nome);
             if (!cartaDb) return '';
 
             return `
@@ -175,15 +176,26 @@
                  .replace(/>/g, "&gt;");
     }
 
-    // funzione per aprire il popup immagine ingrandita
     window.apriPopup = function(src) {
-      const overlay = document.getElementById('overlayPopup');
-      const img = document.getElementById('popupImg');
+    window.apriPopup = function(src) {
+      const popup = document.getElementById('popupCartaIngrandita');
+      const img = popup.querySelector('img');
       img.src = src;
-      overlay.style.display = 'block';
+      popup.style.display = 'block';
+    }
+    
+    function chiudiPopupCarta() {
+      const popup = document.getElementById('popupCartaIngrandita');
+      popup.style.display = 'none';
+      popup.querySelector('img').src = '';
     }
 
     caricaMazzi();
   </script>
+
+<div id="popupCartaIngrandita" onclick="chiudiPopupCarta()" style="display:none;">
+  <img src="" alt="Carta ingrandita" />
+</div>
+  
 </body>
 </html>
