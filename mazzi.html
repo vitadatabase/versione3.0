@@ -87,7 +87,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
   
     const firebaseConfig = {
       apiKey: "AIzaSyAVDt2e7O1cUVCFCKuet1ohIvpBdJjTnZo",
@@ -95,12 +95,12 @@
       projectId: "albo-d-oro-vita-tgc",
       storageBucket: "albo-d-oro-vita-tgc.firebasestorage.app",
       messagingSenderId: "750854799573",
-      appId: "1:750854799573:web:416499f272bee07d6f625c"
+      appId: "1:750854799573:web:416499f272bee07d6f625c",
       databaseURL: "https://albo-d-oro-vita-tgc-default-rtdb.europe-west1.firebasedatabase.app/"
     };
   
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const db = getDatabase(app);
   
     // Espone funzione per caricare un mazzo
     window.caricaMazzoFirebase = async function(nomeMazzo, mazzoData) {
