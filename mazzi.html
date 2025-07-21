@@ -69,6 +69,22 @@
       color: white;
     }
   </style>
+</head>
+<body>
+
+<header>
+  <button onclick="location.href='home.html'" title="Vai alla home">
+    <img src="logo.jpg" alt="Logo Vita" />
+  </button>
+</header>
+
+<h1>I tuoi Mazzi</h1>
+<div id="listaMazzi">
+  <!-- Lista mazzi caricata via JS -->
+</div>
+
+<button id="aggiungiMazzoBtn">Aggiungi nuovo mazzo</button>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
@@ -103,21 +119,6 @@
       }
     };
   </script>
-</head>
-<body>
-
-<header>
-  <button onclick="location.href='home.html'" title="Vai alla home">
-    <img src="logo.jpg" alt="Logo Vita" />
-  </button>
-</header>
-
-<h1>I tuoi Mazzi</h1>
-<div id="listaMazzi">
-  <!-- Lista mazzi caricata via JS -->
-</div>
-
-<button id="aggiungiMazzoBtn">Aggiungi nuovo mazzo</button>
 
 <script>
   // Carica mazzi da localStorage, mostra ordinati per nome
