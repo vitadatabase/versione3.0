@@ -177,14 +177,13 @@
     }
 
     window.apriPopup = function(src) {
-    window.apriPopup = function(src) {
       const popup = document.getElementById('popupCartaIngrandita');
       const img = popup.querySelector('img');
       img.src = src;
       popup.style.display = 'block';
     }
     
-    function chiudiPopupCarta() {
+    window.chiudiPopupCarta = function() {
       const popup = document.getElementById('popupCartaIngrandita');
       popup.style.display = 'none';
       popup.querySelector('img').src = '';
@@ -192,10 +191,5 @@
 
     caricaMazzi();
   </script>
-
-<div id="popupCartaIngrandita" onclick="chiudiPopupCarta()" style="display:none;">
-  <img src="" alt="Carta ingrandita" />
-</div>
-  
 </body>
 </html>
