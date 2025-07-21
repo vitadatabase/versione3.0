@@ -32,7 +32,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAVDt2e7O1cUVCFCKuet1ohIvpBdJjTnZo",
@@ -41,6 +41,7 @@
       storageBucket: "albo-d-oro-vita-tgc.firebasestorage.app",
       messagingSenderId: "750854799573",
       appId: "1:750854799573:web:416499f272bee07d6f625c"
+      databaseURL: "https://albo-d-oro-vita-tgc-default-rtdb.europe-west1.firebasedatabase.app/"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -50,35 +51,34 @@
       const listaDiv = document.getElementById('listaMazzi');
       listaDiv.textContent = 'Caricamento mazzi in corso...';
 
-      try {
-        const q = query(collection(db, "mazzi"), orderBy("timestamp", "desc"));
-        const snapshot = await getDocs(q);
 
-        if (snapshot.empty) {
+      try {
+        const snapshot = await get(child(ref(db), "mazzi"));
+        if (!snapshot.exists()) {
           listaDiv.textContent = 'Nessun mazzo caricato.';
           return;
         }
-
+  
+        const data = snapshot.val();
+        const mazziArray = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+  
         listaDiv.innerHTML = '';
-
-        snapshot.forEach(doc => {
-          const data = doc.data();
+  
+        mazziArray.forEach(m => {
           const mazzoDiv = document.createElement('div');
           mazzoDiv.className = 'mazzo';
-
           mazzoDiv.innerHTML = `
-            <div class="mazzo-header">Utente: ${escapeHtml(data.username)} - Mazzo: ${escapeHtml(data.nomeMazzo)}</div>
-            <pre>${escapeHtml(JSON.stringify(data.mazzo, null, 2))}</pre>
+            <div class="mazzo-header">Utente: ${escapeHtml(m.username)} - Mazzo: ${escapeHtml(m.nomeMazzo)}</div>
+            <pre>${escapeHtml(JSON.stringify(m.mazzo, null, 2))}</pre>
           `;
-
           listaDiv.appendChild(mazzoDiv);
         });
-
-      } catch(e) {
+  
+      } catch (e) {
         listaDiv.textContent = 'Errore nel caricamento: ' + e.message;
       }
     }
-
+  
     function escapeHtml(text) {
       return text.replace(/&/g, "&amp;")
                  .replace(/</g, "&lt;")
