@@ -283,7 +283,7 @@ function filtraCarte() {
   let filtrate = tutteLeCarte.filter(c =>
     (!testo || (
       (c["NOME CARTA"] || '').toLowerCase().includes(testo) ||
-      (c["EFFETTO"] || '').toLowerCase().includes(testo)
+      (c["EFFETTI"] || '').toLowerCase().includes(testo)
     )) &&
     (!set || (c.SET||'').toLowerCase() === set) &&
     (!pietra || (c.PIETRA||'').toLowerCase() === pietra) &&
