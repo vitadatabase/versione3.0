@@ -15,12 +15,9 @@
       color: #222;
     }
     header {
-      background: white;
-      padding: 1em;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       display: flex;
       align-items: center;
-      gap: 1em;
+      height: 60px;
     }
     header button {
       border: none;
@@ -95,12 +92,11 @@
   <button onclick="window.location.href='home.html'">
     <img src="logo.jpg" alt="Home" />
   </button>
-  <h2>Albo d'Oro Mazzi</h2>
 </header>
 
 <main>
   <h1>Albo d'Oro dei Mazzi</h1>
-  <div id="contenitoreMazzi"></div>
+  <div id="listaMazzi"></div>
 </main>
 
 <!-- Popup immagine -->
@@ -150,11 +146,16 @@
           mazzoDiv.className = 'mazzo';
 
           const carteHtml = Object.entries(m.mazzo).map(([id, c]) => `
-            <div class="carta" >
-              <img src="img/${id}.jpg" alt="${escapeHtml(c.nome)}" onclick="apriPopup(this.src)">
-              <div class="quantità">x${c.qty}</div>
-            </div>
-          `).join('');
+            const cartaDb = cardsDatabase.find(card => card["NOME CARTA"] === nomeCarta);
+            if (!cartaDb) return '';
+
+            return `
+              <div class="carta" >
+                <img src="img/${id}.jpg" alt="${escapeHtml(c.nome)}" onclick="apriPopup(this.src)">
+                <div class="quantità">x${c.qty}</div>
+              </div>
+            `;
+          }).join('');
           
           mazzoDiv.innerHTML = `
             <div class="mazzo-header">Utente: ${escapeHtml(m.username)} - Mazzo: ${escapeHtml(m.nomeMazzo)}</div>
