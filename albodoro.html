@@ -147,9 +147,6 @@
           mazzoDiv.className = 'mazzo';
 
           const carteHtml = Object.entries(m.mazzo).map(([id, c]) => {
-            const cartaDb = cardsDatabase.find(card => card["NOME CARTA"] === c.nome);
-            if (!cartaDb) return '';
-
             return `
               <div class="carta" >
                 <img src="img/${id}.jpg" alt="${escapeHtml(c.nome)}" onclick="apriPopup(this.src)">
