@@ -4,31 +4,109 @@
   <meta charset="UTF-8" />
   <title>Albo d'Oro dei Mazzi</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2em; background: #f9f9f9; }
-    h1 { text-align: center; }
-    .mazzo {
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('sfondo.jpg');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      color: #222;
+    }
+    header {
       background: white;
-      border-radius: 8px;
       padding: 1em;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 1em;
+    }
+    header button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+    }
+    header img {
+      height: 50px;
+      display: block;
+    }
+    main {
+      max-width: 1200px;
+      margin: 2em auto;
+      background: rgba(255 255 255 / 0.85);
+      padding: 2em;
+      border-radius: 10px;
+    }
+    h1 {
+      text-align: center;
       margin-bottom: 1em;
-      max-width: 600px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .mazzo {
+      border: 1px solid #aaa;
+      border-radius: 10px;
+      margin-bottom: 2em;
+      padding: 1em;
+      background: white;
     }
     .mazzo-header {
       font-weight: bold;
       margin-bottom: 0.5em;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1em;
     }
-    pre {
-      background: #eee;
-      padding: 1em;
-      border-radius: 4px;
-      overflow-x: auto;
+    .carte-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .carte-container img {
+      width: 80px;
+      height: auto;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      transition: transform 0.2s;
+    }
+    /* popup immagine ingrandita */
+    #popupCartaIngrandita {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 90vw;
+      max-height: 90vh;
+      cursor: pointer;
+      z-index: 10000;
+      /* sfondo trasparente */
+    }
+    #popupCartaIngrandita img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
   </style>
 </head>
 <body>
+<header>
+  <button onclick="window.location.href='home.html'">
+    <img src="logo.jpg" alt="Home" />
+  </button>
+  <h2>Albo d'Oro Mazzi</h2>
+</header>
+
+<main>
   <h1>Albo d'Oro dei Mazzi</h1>
-  <div id="listaMazzi">Caricamento mazzi...</div>
+  <div id="contenitoreMazzi"></div>
+</main>
+
+<!-- Popup immagine -->
+<div id="popupCartaIngrandita" onclick="chiudiPopupCarta()">
+  <img src="" alt="Carta ingrandita" />
+</div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
@@ -61,15 +139,26 @@
   
         const data = snapshot.val();
         const mazziArray = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
-  
+        
+        const cardsResponse = await fetch('cards.json');
+        const cardsDatabase = await cardsResponse.json();
+        
         listaDiv.innerHTML = '';
   
         mazziArray.forEach(m => {
           const mazzoDiv = document.createElement('div');
           mazzoDiv.className = 'mazzo';
+
+          const carteHtml = Object.entries(m.mazzo).map(([id, c]) => `
+            <div class="carta" >
+              <img src="img/${id}.jpg" alt="${escapeHtml(c.nome)}" onclick="apriPopup(this.src)">
+              <div class="quantità">x${c.qty}</div>
+            </div>
+          `).join('');
+          
           mazzoDiv.innerHTML = `
             <div class="mazzo-header">Utente: ${escapeHtml(m.username)} - Mazzo: ${escapeHtml(m.nomeMazzo)}</div>
-            <pre>${escapeHtml(JSON.stringify(m.mazzo, null, 2))}</pre>
+            <div class="carte-container">${carteHtml}</div>
           `;
           listaDiv.appendChild(mazzoDiv);
         });
@@ -83,6 +172,14 @@
       return text.replace(/&/g, "&amp;")
                  .replace(/</g, "&lt;")
                  .replace(/>/g, "&gt;");
+    }
+
+    // funzione per aprire il popup immagine ingrandita
+    window.apriPopup = function(src) {
+      const overlay = document.getElementById('overlayPopup');
+      const img = document.getElementById('popupImg');
+      img.src = src;
+      overlay.style.display = 'block';
     }
 
     caricaMazzi();
