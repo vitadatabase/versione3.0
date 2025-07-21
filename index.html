@@ -275,7 +275,7 @@ function filtraCarte() {
   const set = document.getElementById('filtroSet').value.toLowerCase();
   const pietra = document.getElementById('filtroPietra').value.toLowerCase();
   const rarita = document.getElementById('filtroRarita').value.toLowerCase();
-  const classi = document.getElementById('filtroClassificazione').value.toLowerCase();
+  const classi = document.getElementById('filtroClassificazione').value.trim().toLowerCase();
   const tipo = document.getElementById('filtroTipo').value.toLowerCase();
   const costo = document.getElementById('filtroCosto').value;
   const sortBy = document.getElementById('sortBy').value;
@@ -288,7 +288,7 @@ function filtraCarte() {
     (!set || (c.SET||'').toLowerCase() === set) &&
     (!pietra || (c.PIETRA||'').toLowerCase() === pietra) &&
     (!rarita || (c["RARITA'"]||'').toLowerCase() === rarita) &&
-    (!classi || (c.CLASSIFICAZIONE || '').toLowerCase().includes(classi))
+    (!classi || (c.CLASSIFICAZIONE || '').toLowerCase().replace(/\s+/g, ' ').includes(classi))
     (!tipo || (c.TIPO||'').toLowerCase() === tipo) &&
     (!costo || (c.COSTO+'') === costo)
   );
