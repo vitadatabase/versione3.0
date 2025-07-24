@@ -342,7 +342,7 @@ function filtraCarte() {
       (c["EFFETTI"] || '').toLowerCase().includes(testo)
     )) &&
     (!set || (c.SET||'').toLowerCase() === set) &&
-    (pietreSelezionate.length === 0 || pietreSelezionate.includes((c.PIETRA || '').toLowerCase()))
+    (pietreSelezionate.length === 0 || pietreSelezionate.includes((c.PIETRA || '').toLowerCase()))&&
     (!rarita || (c["RARITA'"]||'').toLowerCase() === rarita) &&
     (!classi || (c.CLASSIFICAZIONE || '').toLowerCase().replace(/\s+/g, ' ').includes(classi))&&
     (!tipo || (c.TIPO||'').toLowerCase() === tipo) &&
