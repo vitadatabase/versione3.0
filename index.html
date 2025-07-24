@@ -55,6 +55,36 @@
       padding: 0.5em;
       margin-bottom: 1em;
     }
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      margin-bottom: 1em;
+    }
+    
+    .dropdown-toggle {
+      width: 100%;
+      padding: 0.5em;
+      background: white;
+      border: 1px solid #ccc;
+      text-align: left;
+      cursor: pointer;
+    }
+    
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      width: 100%;
+      background: white;
+      border: 1px solid #ccc;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 999;
+    }
+    
+    .dropdown.open .dropdown-menu {
+      display: block;
+    }
     #search-container {
       margin-top: 150px;
     }
@@ -205,15 +235,14 @@
 
   <div id="sidebar">
     <select id="filtroSet"><option value="">SET</option><option>UN NUOVO INIZIO</option><option>DIETRO LE QUINTE</option></select>
-    <div id="filtroPietraContainer">
-      <strong style="display:block; margin-bottom: 0.5em;">PIETRA</strong>
-      <label><input type="checkbox" value="ACCIAIO"> ACCIAIO</label><br>
-      <label><input type="checkbox" value="AMBRA"> AMBRA</label><br>
-      <label><input type="checkbox" value="AMETISTA"> AMETISTA</label><br>
-      <label><input type="checkbox" value="RUBINO"> RUBINO</label><br>
-      <label><input type="checkbox" value="SMERALDO"> SMERALDO</label><br>
-      <label><input type="checkbox" value="ZAFFIRO"> ZAFFIRO</label><br>
-      <label><input type="checkbox" value="DIAMANTE"> DIAMANTE</label><br>
+    <div class="dropdown">
+      <button class="dropdown-toggle" onclick="toggleDropdown()">PIETRA</button>
+      <div class="dropdown-menu" id="dropdownPietra">
+        <label><input type="checkbox" value="ZAFFIRO" onchange="filtraCarte()"> Zaffiro</label>
+        <label><input type="checkbox" value="AMBRA" onchange="filtraCarte()"> Ambra</label>
+        <label><input type="checkbox" value="AMETISTA" onchange="filtraCarte()"> Ametista</label>
+        <!-- Aggiungi le altre -->
+      </div>
     </div>
     <select id="filtroRarita"><option value="">RARITÀ</option><option>COMUNE</option><option>NON COMUNE</option><option>RARO</option><option>SUPER RARO</option><option>LEGGENDARIO</option><option>PROMO</option></select>
     <select id="filtroClassificazione">
@@ -290,20 +319,22 @@ fetch('cards.json')
   .then(r => r.json())
   .then(data => { tutteLeCarte = data; mostraCarte(data); });
 
-document.querySelectorAll('#filtroPietraContainer input[type=checkbox]').forEach(cb => {
-  cb.addEventListener('change', aggiornaStileFiltri);
-});
+function toggleDropdown() {
+  const drop = document.querySelector('.dropdown');
+  drop.classList.toggle('open');
+  aggiornaStileFiltri();
+}
 
 function filtraCarte() {
   const testo = document.getElementById('search').value.toLowerCase();
   const set = document.getElementById('filtroSet').value.toLowerCase();
+  const pietreSelezionate = Array.from(document.querySelectorAll('#dropdownPietra input[type=checkbox]:checked'))
+    .map(cb => cb.value.toLowerCase());
   const rarita = document.getElementById('filtroRarita').value.toLowerCase();
   const classi = document.getElementById('filtroClassificazione').value.trim().toLowerCase();
   const tipo = document.getElementById('filtroTipo').value.toLowerCase();
   const costo = document.getElementById('filtroCosto').value;
   const sortBy = document.getElementById('sortBy').value;
-
-  const pietreSelezionate = Array.from(document.querySelectorAll('#filtroPietraContainer input[type=checkbox]:checked')).map(cb => cb.value.toLowerCase());
 
   let filtrate = tutteLeCarte.filter(c =>
     (!testo || (
@@ -311,7 +342,7 @@ function filtraCarte() {
       (c["EFFETTI"] || '').toLowerCase().includes(testo)
     )) &&
     (!set || (c.SET||'').toLowerCase() === set) &&
-    (pietreSelezionate.length === 0 || pietreSelezionate.includes((c.PIETRA || '').toLowerCase())) &&
+    (!pietra || (c.PIETRA||'').toLowerCase() === pietra) &&
     (!rarita || (c["RARITA'"]||'').toLowerCase() === rarita) &&
     (!classi || (c.CLASSIFICAZIONE || '').toLowerCase().replace(/\s+/g, ' ').includes(classi))&&
     (!tipo || (c.TIPO||'').toLowerCase() === tipo) &&
@@ -325,14 +356,6 @@ function filtraCarte() {
   });
 
   mostraCarte(filtrate);
-  aggiornaStileFiltri(); // aggiorna stile dopo il filtraggio
-}
-
-function aggiornaStileFiltri() {
-  const pietreCheckbox = document.querySelectorAll('#filtroPietraContainer input[type=checkbox]');
-  const pietraContainer = document.getElementById('filtroPietraContainer');
-  const attivi = Array.from(pietreCheckbox).some(cb => cb.checked);
-  pietraContainer.style.backgroundColor = attivi ? '#eee' : '';
 }
 
 function resetFiltri() {
@@ -346,6 +369,15 @@ function resetFiltri() {
   document.getElementById('sortBy').value = '';
   filtraCarte();
 }
+
+function aggiornaStileFiltri() {
+  const pietreCheckbox = document.querySelectorAll('#dropdownPietra input[type=checkbox]');
+  const attive = Array.from(pietreCheckbox).some(cb => cb.checked);
+  const toggleBtn = document.querySelector('.dropdown-toggle');
+
+  toggleBtn.style.backgroundColor = attive ? '#eee' : '';
+}
+
 
 function mostraCarte(carte) {
   const c = document.getElementById('cards');
