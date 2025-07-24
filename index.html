@@ -383,9 +383,17 @@ fetch('cards.json')
   .then(data => { tutteLeCarte = data; mostraCarte(data); });
 
 function toggleDropdown(id) {
-  const all = document.querySelectorAll('.dropdown');
-  all.forEach(d => d.classList.remove('open'));
-  document.querySelector(`.dropdown-toggle[onclick*="${id}"]`).parentElement.classList.toggle('open');
+  const clicked = document.querySelector(`.dropdown-toggle[onclick*="${id}"]`).parentElement;
+  const isOpen = clicked.classList.contains('open');
+
+  // Chiude tutti
+  document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+
+  // Se quello cliccato non era già aperto, aprilo
+  if (!isOpen) {
+    clicked.classList.add('open');
+  }
+
   aggiornaStileFiltri();
 }
 
