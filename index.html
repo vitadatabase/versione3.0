@@ -342,7 +342,7 @@ function filtraCarte() {
       (c["EFFETTI"] || '').toLowerCase().includes(testo)
     )) &&
     (!set || (c.SET||'').toLowerCase() === set) &&
-    (!pietra || (c.PIETRA||'').toLowerCase() === pietra) &&
+    (pietreSelezionate.length === 0 || pietreSelezionate.includes((c.PIETRA || '').toLowerCase()))
     (!rarita || (c["RARITA'"]||'').toLowerCase() === rarita) &&
     (!classi || (c.CLASSIFICAZIONE || '').toLowerCase().replace(/\s+/g, ' ').includes(classi))&&
     (!tipo || (c.TIPO||'').toLowerCase() === tipo) &&
@@ -361,7 +361,7 @@ function filtraCarte() {
 function resetFiltri() {
   document.getElementById('search').value = '';
   document.getElementById('filtroSet').value = '';
-  document.getElementById('filtroPietra').value = '';
+  document.querySelectorAll('#dropdownPietra input[type=checkbox]').forEach(cb => cb.checked = false);
   document.getElementById('filtroRarita').value = '';
   document.getElementById('filtroClassificazione').value = '';
   document.getElementById('filtroTipo').value = '';
