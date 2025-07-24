@@ -393,7 +393,7 @@ function toggleDropdown(id) {
   if (!isOpen) {
     clicked.classList.add('open');
   }
-
+  
   aggiornaStileFiltri();
 }
 
@@ -568,6 +568,14 @@ function closeMazzo() {
   document.getElementById('mazzoPopup').style.display='none';
   document.getElementById('overlay').style.display='none';
 }
+
+// Chiudi tutti i dropdown se clicchi fuori
+document.addEventListener('click', function(event) {
+  const isDropdown = event.target.closest('.dropdown');
+  if (!isDropdown) {
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
 </script>
 
 </body>
