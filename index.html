@@ -254,7 +254,7 @@
       </div>
     </div>
     <div class="dropdown">
-      <button class="dropdown-toggle" onclick="toggleDropdown()">PIETRA</button>
+      <button class="dropdown-toggle" onclick="toggleDropdown('Pietra')">PIETRA</button>
       <div class="dropdown-menu" id="dropdownPietra">
         <label><input type="checkbox" value="ZAFFIRO"> ACCIAIO</label>
         <label><input type="checkbox" value="AMBRA"> AMBRA</label>
@@ -382,7 +382,7 @@ fetch('cards.json')
   .then(r => r.json())
   .then(data => { tutteLeCarte = data; mostraCarte(data); });
 
-function toggleDropdown() {
+function toggleDropdown(id) {
   const all = document.querySelectorAll('.dropdown');
   all.forEach(d => d.classList.remove('open'));
   document.querySelector(`.dropdown-toggle[onclick*="${id}"]`).parentElement.classList.toggle('open');
