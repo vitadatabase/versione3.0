@@ -222,47 +222,6 @@
       board.appendChild(div);
     }
 
-    function getNome(id) {
-      return document.getElementById('nomeGiocatore' + id).textContent.trim();
-    }
-
-    function activeCount() {
-      return stato.attivi.size;
-    }
-
-    function eliminaGiocatore(id) {
-      if (!stato.attivi.has(id)) return;
-
-      stato.attivi.delete(id);
-      stato.eliminati.add(id);
-
-      const box = document.getElementById('box' + id);
-      box.classList.add('eliminato');
-
-      // Optional: scritta "ELIMINATO"
-      const tag = document.createElement('div');
-      tag.style.marginTop = "10px";
-      tag.style.fontWeight = "bold";
-      tag.textContent = "ELIMINATO";
-      box.appendChild(tag);
-    }
-
-    function trovaAltroAttivo(idEscluso) {
-      for (const id of stato.attivi) {
-        if (id !== idEscluso) return id;
-      }
-      return null;
-    }
-
-    function cambia(id, delta) {
-      // se eliminato non fa nulla (in teoria già bloccato dal pointer-events)
-      if (!stato.attivi.has(id)) return;
-
-      const el = document.getElementById('punti' + id);
-      let val = parseInt(el.textContent, 10);
-      val = Math.max(0, Math.min(20, val + delta));
-      el.textContent = val;
-
       function abilitaPolygonModeSeServe() {
         const isPhone = window.matchMedia("(max-width: 700px)").matches;
         // attiva su telefono (puoi decidere di attivarla sempre, anche su tablet)
@@ -329,14 +288,57 @@
         setTimeout(() => { abilitaPolygonModeSeServe(); layoutPolygon(); }, 120);
       });
 
+    function getNome(id) {
+      return document.getElementById('nomeGiocatore' + id).textContent.trim();
+    }
 
-      
+    function activeCount() {
+      return stato.attivi.size;
+    }
+
+    function eliminaGiocatore(id) {
+      if (!stato.attivi.has(id)) return;
+
+      stato.attivi.delete(id);
+      stato.eliminati.add(id);
+
+      const box = document.getElementById('box' + id);
+      box.classList.add('eliminato');
+
+      // Optional: scritta "ELIMINATO"
+      const tag = document.createElement('div');
+      tag.style.marginTop = "10px";
+      tag.style.fontWeight = "bold";
+      tag.textContent = "ELIMINATO";
+      box.appendChild(tag);
+    }
+
+    function trovaAltroAttivo(idEscluso) {
+      for (const id of stato.attivi) {
+        if (id !== idEscluso) return id;
+      }
+      return null;
+    }
+
+
+    
+    function cambia(id, delta) {
+      // se eliminato non fa nulla (in teoria già bloccato dal pointer-events)
+      if (!stato.attivi.has(id)) return;
+
+      const el = document.getElementById('punti' + id);
+      let val = parseInt(el.textContent, 10);
+      val = Math.max(0, Math.min(20, val + delta));
+      el.textContent = val;
+
       // Vittoria “classica” a 20
       if (val === 20) {
         mostraVittoria(getNome(id));
       }
     }
 
+
+    
     function modificaNome(id) {
       if (!stato.attivi.has(id)) return;
 
