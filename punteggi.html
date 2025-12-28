@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Punteggi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background-image: url('sfondo.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: #111;
+    }
+
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 60px; background: rgba(255, 255, 255, 0.9);
+      display: flex; align-items: center; padding-left: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+
+    header a img { height: 40px; cursor: pointer; }
+
+    .board {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 80px;
+      padding: 1em;
+      gap: 1em;
+    }
+
+    .segnapunto {
+      background: rgba(255,255,255,0.85);
+      border: 2px solid #444;
+      border-radius: 10px;
+      padding: 1em;
+      width: 160px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: 0.2s ease;
+    }
+
+    .segnapunto.eliminato {
+      opacity: 0.45;
+      filter: grayscale(1);
+      pointer-events: none; /* blocca click su tutto */
+    }
+
+    .punteggio {
+      font-size: 36px;
+      margin: 0.5em 0;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5em;
+    }
+
+    .controls button {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    .giocatore {
+      margin-top: 0.5em;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .mazzo-finito {
+      margin-top: 0.8em;
+      padding: 0.4em 0.8em;
+      font-size: 0.9em;
+      background-color: #ffd700;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .vittoria-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .vittoria-overlay img {
+      max-width: 90vw;
+      max-height: 70vh;
+    }
+
+    .vittoria-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 1em;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .vittoria-buttons button {
+      font-size: 1.1em;
+      padding: 0.6em 1.1em;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .vittoria-buttons button:first-child {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .vittoria-buttons button:last-child {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .msg {
+      color: white;
+      font-size: 1.35em;
+      margin-top: 14px;
+      line-height: 1.3;
+    }
+    
+    /* Modalità tavolo: riquadri in cerchio/poligono */
+    body.table-polygon {
+      overflow: hidden;
+    }
+    
+    body.table-polygon .board {
+      position: relative;
+      height: calc(100vh - 60px);
+      margin-top: 60px;
+      padding: 0;
+      display: block;       /* niente flex */
+    }
+    
+    body.table-polygon .segnapunto {
+      position: absolute;
+      width: min(46vw, 200px);   /* adattivo telefono */
+      max-width: 220px;
+      transform-origin: center center;
+      border-radius: 12px;
+    }
+    
+    /* opzionale: su schermi molto piccoli, rimpicciolisce un po' */
+    @media (max-width: 420px) {
+      body.table-polygon .segnapunto {
+        width: min(44vw, 180px);
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <a href="home.html"><img src="logo.jpg" alt="Logo"></a>
+  </header>
+
+  <div class="board" id="board"></div>
+  <div style="text-align:center; margin-bottom: 30px;">
+    <button onclick="resetPunti()" style="
+      font-size: 1em;
+      padding: 0.6em 1.2em;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background-color: #2196F3;
+      color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+     ">
+       🔄 Reset punti
+     </button>
+   </div>
+
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const numGiocatori = parseInt(urlParams.get('giocatori')) || 2;
+
+    const board = document.getElementById('board');
+
+    // Stato partita
+    const stato = {
+      numGiocatori,
+      attivi: new Set(), // id giocatori ancora in partita
+      eliminati: new Set()
+    };
+
+    for (let i = 1; i <= numGiocatori; i++) {
+      stato.attivi.add(i);
+
+      const div = document.createElement('div');
+      div.className = 'segnapunto';
+      div.id = `box${i}`;
+      div.innerHTML = `
+        <div class="controls">
+          <button onclick="cambia(${i}, -1)">−</button>
+          <div class="punteggio" id="punti${i}">0</div>
+          <button onclick="cambia(${i}, 1)">+</button>
+        </div>
+        <div class="giocatore" id="nomeGiocatore${i}" onclick="modificaNome(${i})">Giocatore ${i}</div>
+        <button onclick="fineMazzo(${i})" class="mazzo-finito">Ho finito il mazzo</button>
+      `;
+      board.appendChild(div);
+    }
+
+    function getNome(id) {
+      return document.getElementById('nomeGiocatore' + id).textContent.trim();
+    }
+
+    function activeCount() {
+      return stato.attivi.size;
+    }
+
+    function eliminaGiocatore(id) {
+      if (!stato.attivi.has(id)) return;
+
+      stato.attivi.delete(id);
+      stato.eliminati.add(id);
+
+      const box = document.getElementById('box' + id);
+      box.classList.add('eliminato');
+
+      // Optional: scritta "ELIMINATO"
+      const tag = document.createElement('div');
+      tag.style.marginTop = "10px";
+      tag.style.fontWeight = "bold";
+      tag.textContent = "ELIMINATO";
+      box.appendChild(tag);
+    }
+
+    function trovaAltroAttivo(idEscluso) {
+      for (const id of stato.attivi) {
+        if (id !== idEscluso) return id;
+      }
+      return null;
+    }
+
+    function cambia(id, delta) {
+      // se eliminato non fa nulla (in teoria già bloccato dal pointer-events)
+      if (!stato.attivi.has(id)) return;
+
+      const el = document.getElementById('punti' + id);
+      let val = parseInt(el.textContent, 10);
+      val = Math.max(0, Math.min(20, val + delta));
+      el.textContent = val;
+
+      function abilitaPolygonModeSeServe() {
+        const isPhone = window.matchMedia("(max-width: 700px)").matches;
+        // attiva su telefono (puoi decidere di attivarla sempre, anche su tablet)
+        if (isPhone) document.body.classList.add("table-polygon");
+        else document.body.classList.remove("table-polygon");
+      }
+      
+      function layoutPolygon() {
+        if (!document.body.classList.contains("table-polygon")) return;
+      
+        const board = document.getElementById("board");
+        const rect = board.getBoundingClientRect();
+      
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+      
+        // raggio: lascia spazio per i box
+        const radius = Math.max(0, Math.min(cx, cy) - 120);
+      
+        const n = numGiocatori;
+      
+        // angolo iniziale: metto il giocatore 1 "in alto" (verso nord)
+        const startAngle = -90; // gradi
+      
+        for (let i = 1; i <= n; i++) {
+          const box = document.getElementById("box" + i);
+          if (!box) continue;
+      
+          // misura box (dopo che esiste in DOM)
+          const w = box.offsetWidth;
+          const h = box.offsetHeight;
+      
+          const angle = startAngle + (360 / n) * (i - 1);
+          const rad = angle * Math.PI / 180;
+      
+          const x = cx + radius * Math.cos(rad) - w / 2;
+          const y = cy + radius * Math.sin(rad) - h / 2;
+      
+          // posizione
+          box.style.left = `${x}px`;
+          box.style.top  = `${y}px`;
+      
+          // rotazione verso l'esterno:
+          // se il box è sul "basso" del cerchio, lo ruoto 180° per essere leggibile da quel lato.
+          // Regola semplice e efficace: ruota di angle+90 (orientamento tangenziale) oppure angle+180 (radiale).
+          // Qui usiamo radiale: ogni box "guarda" il suo giocatore.
+          const rotate = angle + 180;
+          box.style.transform = `rotate(${rotate}deg)`;
+        }
+      }
+      
+      // attiva e ridisegna
+      abilitaPolygonModeSeServe();
+      layoutPolygon();
+      
+      window.addEventListener("resize", () => {
+        abilitaPolygonModeSeServe();
+        // piccolo delay per misure corrette dopo resize/orientation change
+        setTimeout(layoutPolygon, 60);
+      });
+      
+      // utile su telefono quando ruoti lo schermo
+      window.addEventListener("orientationchange", () => {
+        setTimeout(() => { abilitaPolygonModeSeServe(); layoutPolygon(); }, 120);
+      });
+
+
+      
+      // Vittoria “classica” a 20
+      if (val === 20) {
+        mostraVittoria(getNome(id));
+      }
+    }
+
+    function modificaNome(id) {
+      if (!stato.attivi.has(id)) return;
+
+      const div = document.getElementById('nomeGiocatore' + id);
+      const currentName = div.textContent;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = currentName;
+      input.style.width = '100%';
+      input.style.fontWeight = 'bold';
+      input.style.fontSize = '1em';
+
+      function salva() {
+        const nuovoNome = input.value.trim() || `Giocatore ${id}`;
+        div.textContent = nuovoNome;
+        div.style.display = 'block';
+        input.remove();
+      }
+
+      input.addEventListener('blur', salva);
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') input.blur();
+        if (e.key === 'Escape') { input.value = currentName; input.blur(); }
+      });
+
+      div.style.display = 'none';
+      div.parentNode.insertBefore(input, div);
+      input.focus();
+      input.select();
+    }
+
+    // Qui è la regola che volevi:
+    // "Ho finito il mazzo" => quel giocatore perde/eliminato.
+    function fineMazzo(id) {
+      // Se erano in 2 (o comunque se restano 2 attivi prima di eliminare),
+      // eliminando questo, l'altro vince subito.
+      if (!stato.attivi.has(id)) return;
+
+      if (activeCount() === 2) {
+        const vincitoreId = trovaAltroAttivo(id);
+        const vincitoreNome = getNome(vincitoreId);
+        eliminaGiocatore(id);
+        mostraVittoria(vincitoreNome, `${getNome(id)} ha finito il mazzo ed è eliminato.`);
+        return;
+      }
+
+      // Se >2, elimina e si continua
+      eliminaGiocatore(id);
+
+      // Se dopo l’eliminazione resta 1 solo attivo, quello vince
+      if (activeCount() === 1) {
+        const [solo] = Array.from(stato.attivi);
+        mostraVittoria(getNome(solo));
+      }
+    }
+
+    function mostraVittoria(nomeVincitore, dettagli = "") {
+      if (document.getElementById('overlayVittoria')) return;
+
+      const overlay = document.createElement('div');
+      overlay.id = 'overlayVittoria';
+      overlay.className = 'vittoria-overlay';
+
+      const img = document.createElement('img');
+      img.src = 'vittoria.gif';
+      img.alt = 'Vittoria!';
+
+      const msg = document.createElement('div');
+      msg.className = 'msg';
+      msg.innerHTML = `🏆 <strong>${nomeVincitore}</strong> ha vinto!` + (dettagli ? `<br><small>${dettagli}</small>` : "");
+
+      const buttons = document.createElement('div');
+      buttons.className = 'vittoria-buttons';
+
+      const homeBtn = document.createElement('button');
+      homeBtn.textContent = 'Torna alla home';
+      homeBtn.onclick = () => window.location.href = 'home.html';
+
+      const restartBtn = document.createElement('button');
+      restartBtn.textContent = 'Ancora una partita?';
+      restartBtn.onclick = () => window.location.href = 'nuova_partita.html';
+
+      buttons.appendChild(homeBtn);
+      buttons.appendChild(restartBtn);
+
+      overlay.appendChild(img);
+
+      // Se vuoi mantenere l’effetto “dopo 10 secondi”, lascia così:
+      setTimeout(() => {
+        overlay.appendChild(msg);
+        overlay.appendChild(buttons);
+      }, 10000);
+
+      document.body.appendChild(overlay);
+    }
+
+    function resetPunti() {
+      for (let i = 1; i <= stato.numGiocatori; i++) {
+        const punti = document.getElementById('punti' + i);
+        if (punti) {
+          punti.textContent = "0";
+        }
+      }
+    }
+
+  </script>
+</body>
+</html>
