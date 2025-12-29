@@ -198,6 +198,13 @@
       padding: 0.7em;
     }
 
+    /* contenuto ruotabile dentro al box */
+    body.table-polygon .segnapunto .content{
+      width: 100%;
+      height: 100%;
+      transform-origin: center center;
+    }
+
     @media (max-width: 380px){
       .controls button{ font-size: 22px; width: 38px; height: 38px; }
       .punteggio{ font-size: 32px; }
@@ -237,14 +244,17 @@
       div.className = 'segnapunto';
       div.id = `box${i}`;
       div.innerHTML = `
-        <div class="controls">
-          <button onclick="cambia(${i}, -1)">−</button>
-          <div class="punteggio" id="punti${i}">0</div>
-          <button onclick="cambia(${i}, 1)">+</button>
+        <div class="content" id="content${i}">
+          <div class="controls">
+            <button onclick="cambia(${i}, -1)">−</button>
+            <div class="punteggio" id="punti${i}">0</div>
+            <button onclick="cambia(${i}, 1)">+</button>
+          </div>
+          <div class="giocatore" id="nomeGiocatore${i}" onclick="modificaNome(${i})">Giocatore ${i}</div>
+          <button onclick="fineMazzo(${i})" class="mazzo-finito">Ho finito il mazzo</button>
         </div>
-        <div class="giocatore" id="nomeGiocatore${i}" onclick="modificaNome(${i})">Giocatore ${i}</div>
-        <button onclick="fineMazzo(${i})" class="mazzo-finito">Ho finito il mazzo</button>
       `;
+
       board.appendChild(div);
     }
 
@@ -329,7 +339,17 @@
 
         box.style.left = `${x}px`;
         box.style.top  = `${y}px`;
-        box.style.transform = `rotate(${angle + 180}deg) scale(${scale})`;
+        
+        // il box NON ruota: serve solo per posizione e scala
+        box.style.transform = `scale(${scale})`;
+        box.style.transformOrigin = "center center";
+        
+        // ruotiamo TUTTO il contenuto verso il giocatore
+        const content = document.getElementById("content" + i);
+        if (content) {
+          content.style.transformOrigin = "center center";
+          content.style.transform = `rotate(${angle + 180}deg)`;
+        }
       }
     }
 
