@@ -235,37 +235,36 @@
       function layoutPolygon() {
         if (!document.body.classList.contains("table-polygon")) return;
       
-        const board = document.getElementById("board");
-        const rect = board.getBoundingClientRect();
+        const headerH = 60;
       
-        const cx = rect.width / 2;
-        const cy = rect.height / 2;
+        // area reale disponibile sul telefono (schermo), indipendente dalla board
+        const W = window.innerWidth;
+        const H = window.innerHeight - headerH;
       
-        // raggio: lascia spazio per i box
-        // stima dimensione box (prendiamo il primo che esiste)
+        const cx = W / 2;
+        const cy = headerH + (H / 2);
+      
+        const n = numGiocatori;
+        const startAngle = -90;
+      
+        // scala in base al numero giocatori
+        const scale = (n >= 7) ? 0.75 : (n === 6 ? 0.82 : (n === 5 ? 0.9 : 1));
+      
+        // prendo una misura box reale (dopo render)
         const box1 = document.getElementById("box1");
         const bw = box1 ? box1.offsetWidth : 160;
         const bh = box1 ? box1.offsetHeight : 180;
-        
-        // raggio: usa quasi tutto lo schermo, lasciando mezzo box di margine
-        const radius = Math.max(0, Math.min(cx, cy) - Math.max(bw, bh) / 2 - 10);
-
       
-        const n = numGiocatori;
-        document.documentElement.style.setProperty(
-          "--scaleBox",
-          n >= 6 ? "0.85" : n === 5 ? "0.9" : "1"
+        // raggio “spinto” verso i bordi
+        const radius = Math.max(
+          0,
+          Math.min(W, H) / 2 - Math.max(bw, bh) * 0.55
         );
-
-      
-        // angolo iniziale: metto il giocatore 1 "in alto" (verso nord)
-        const startAngle = -90; // gradi
       
         for (let i = 1; i <= n; i++) {
           const box = document.getElementById("box" + i);
           if (!box) continue;
       
-          // misura box (dopo che esiste in DOM)
           const w = box.offsetWidth;
           const h = box.offsetHeight;
       
@@ -275,20 +274,13 @@
           const x = cx + radius * Math.cos(rad) - w / 2;
           const y = cy + radius * Math.sin(rad) - h / 2;
       
-          // posizione
           box.style.left = `${x}px`;
           box.style.top  = `${y}px`;
       
-          // rotazione verso l'esterno:
-          // se il box è sul "basso" del cerchio, lo ruoto 180° per essere leggibile da quel lato.
-          // Regola semplice e efficace: ruota di angle+90 (orientamento tangenziale) oppure angle+180 (radiale).
-          // Qui usiamo radiale: ogni box "guarda" il suo giocatore.
-          const rotate = angle + 180;
-          const scale = (n >= 6) ? 0.85 : (n === 5 ? 0.9 : 1);
           box.style.transform = `rotate(${angle + 180}deg) scale(${scale})`;
-
         }
       }
+
       
       // attiva e ridisegna
       abilitaPolygonModeSeServe();
