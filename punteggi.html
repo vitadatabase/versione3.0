@@ -3,39 +3,101 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Riduce i casi di cache aggressiva su mobile (non è garantito al 100% su GH Pages, ma aiuta) -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <title>Punteggi</title>
+
   <style>
-    body {
+    :root{
+      --topSafe: 64px;     /* spazio per bottone HOME */
+      --bottomSafe: 70px;  /* spazio per bottone RESET */
+      --boxW: 170px;       /* verrà sovrascritto dal JS in modalità poligono */
+      --boxScale: 1;       /* idem */
+    }
+
+    body{
       font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background-image: url('sfondo.jpg');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
       background-repeat: no-repeat;
       color: #111;
+      overflow-x: hidden;
     }
 
-    header {
-      position: fixed; top: 0; left: 0; right: 0;
-      height: 60px; background: rgba(255, 255, 255, 0.9);
-      display: flex; align-items: center; padding-left: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 1000;
+    /* ====== BOTTONI FISSI (non interferiscono) ====== */
+    .fixed-ui{
+      position: fixed;
+      left: 0; right: 0;
+      top: 0;
+      height: var(--topSafe);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      z-index: 5000;
+      pointer-events: none; /* il contenitore non prende click */
     }
+    .fixed-ui .btn{
+      pointer-events: auto; /* SOLO i bottoni sono cliccabili */
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      padding: 10px 14px;
+      font-size: 1em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      background: rgba(255,255,255,0.92);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      touch-action: manipulation; /* riduce double-tap zoom */
+    }
+    .fixed-ui .btn:active{ transform: scale(0.98); }
 
-    header a img { height: 40px; cursor: pointer; }
+    .fixed-bottom{
+      position: fixed;
+      left: 0; right: 0;
+      bottom: 0;
+      height: var(--bottomSafe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 12px;
+      z-index: 5000;
+      pointer-events: none;
+    }
+    .fixed-bottom .btn-reset{
+      pointer-events: auto;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 12px 18px;
+      font-size: 1.05em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      background: #2196F3;
+      color: white;
+      touch-action: manipulation;
+    }
+    .fixed-bottom .btn-reset:active{ transform: scale(0.98); }
 
-    .board {
+    /* ====== BOARD (layout normale desktop) ====== */
+    .board{
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      margin-top: 80px;
-      padding: 1em;
       gap: 1em;
+      padding: calc(var(--topSafe) + 10px) 1em calc(var(--bottomSafe) + 10px);
+      box-sizing: border-box;
     }
 
-    .segnapunto {
+    .segnapunto{
       background: rgba(255,255,255,0.85);
       border: 2px solid #444;
       border-radius: 10px;
@@ -46,39 +108,37 @@
       transition: 0.2s ease;
     }
 
-    .segnapunto.eliminato {
+    .segnapunto.eliminato{
       opacity: 0.45;
       filter: grayscale(1);
-      pointer-events: none; /* blocca click su tutto */
+      pointer-events: none;
     }
 
-    .punteggio {
-      font-size: 36px;
-      margin: 0.5em 0;
-    }
+    .punteggio{ font-size: 36px; margin: 0.5em 0; }
 
-    .controls {
+    .controls{
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 0.5em;
     }
 
-    .controls button {
+    .controls button{
       font-size: 24px;
       width: 40px;
       height: 40px;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
-    .giocatore {
+    .giocatore{
       margin-top: 0.5em;
       font-weight: bold;
       cursor: pointer;
       user-select: none;
     }
 
-    .mazzo-finito {
+    .mazzo-finito{
       margin-top: 0.8em;
       padding: 0.4em 0.8em;
       font-size: 0.9em;
@@ -87,11 +147,13 @@
       border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
+      touch-action: manipulation;
     }
 
-    .vittoria-overlay {
+    /* ====== VITTORIA ====== */
+    .vittoria-overlay{
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      inset: 0;
       background: rgba(0, 0, 0, 0.85);
       z-index: 9999;
       display: flex;
@@ -102,12 +164,12 @@
       padding: 20px;
     }
 
-    .vittoria-overlay img {
+    .vittoria-overlay img{
       max-width: 90vw;
       max-height: 70vh;
     }
 
-    .vittoria-buttons {
+    .vittoria-buttons{
       margin-top: 20px;
       display: flex;
       gap: 1em;
@@ -115,84 +177,67 @@
       justify-content: center;
     }
 
-    .vittoria-buttons button {
+    .vittoria-buttons button{
       font-size: 1.1em;
       padding: 0.6em 1.1em;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
-    .vittoria-buttons button:first-child {
-      background-color: #f44336;
-      color: white;
-    }
+    .vittoria-buttons button:first-child{ background-color: #f44336; color: white; }
+    .vittoria-buttons button:last-child{ background-color: #4CAF50; color: white; }
 
-    .vittoria-buttons button:last-child {
-      background-color: #4CAF50;
-      color: white;
-    }
-
-    .msg {
+    .msg{
       color: white;
       font-size: 1.35em;
       margin-top: 14px;
       line-height: 1.3;
     }
-    
-    /* Modalità tavolo: riquadri in cerchio/poligono */
-    body.table-polygon {
+
+    /* ====== MODALITÀ POLIGONO (telefono) ====== */
+    body.table-polygon{
       overflow: hidden;
+      overscroll-behavior: none;
     }
-    
-    body.table-polygon .board {
+
+    body.table-polygon .board{
       position: relative;
-      height: calc(100vh - 60px);
-      margin-top: 60px;
-      padding: 0;
-      display: block;       /* niente flex */
+      display: block; /* disattiva flex */
+      height: 100vh;  /* riempi, tanto padding gestisce lo spazio utile */
+      padding: 0;     /* il JS usa lo schermo reale, quindi qui non serve padding */
     }
-    
-    body.table-polygon .segnapunto {
+
+    body.table-polygon .segnapunto{
       position: absolute;
-      width: clamp(120px, 28vw, 180px);   /* adattivo telefono */
-      max-width: 180px;
+      width: var(--boxW);
       transform-origin: center center;
       border-radius: 12px;
       padding: 0.7em;
-      transform: scale(var(--scaleBox, 1));
-    }
-    
-    /* opzionale: su schermi molto piccoli, rimpicciolisce un po' */
-    @media (max-width: 420px) {
-      body.table-polygon .segnapunto {
-        width: min(44vw, 180px);
-      }
+      /* il JS mette rotate + scale */
     }
 
+    /* Extra: su schermi micro, riduci un filo i font dei pulsanti */
+    @media (max-width: 380px){
+      .controls button{ font-size: 22px; width: 38px; height: 38px; }
+      .punteggio{ font-size: 32px; }
+    }
   </style>
 </head>
+
 <body>
-  <header>
-    <a href="home.html"><img src="logo.jpg" alt="Logo"></a>
-  </header>
+  <!-- BOTTONI FISSI -->
+  <div class="fixed-ui">
+    <button class="btn" onclick="window.location.href='home.html'">🏠 Home</button>
+    <span></span>
+  </div>
+
+  <div class="fixed-bottom">
+    <button class="btn-reset" onclick="resetPunti()">🔄 Reset punti</button>
+  </div>
 
   <div class="board" id="board"></div>
-  <div style="text-align:center; margin-bottom: 30px;">
-    <button onclick="resetPunti()" style="
-      font-size: 1em;
-      padding: 0.6em 1.2em;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      background-color: #2196F3;
-      color: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-     ">
-       🔄 Reset punti
-     </button>
-   </div>
-
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -203,10 +248,11 @@
     // Stato partita
     const stato = {
       numGiocatori,
-      attivi: new Set(), // id giocatori ancora in partita
+      attivi: new Set(),
       eliminati: new Set()
     };
 
+    // Crea box giocatori
     for (let i = 1; i <= numGiocatori; i++) {
       stato.attivi.add(i);
 
@@ -225,79 +271,119 @@
       board.appendChild(div);
     }
 
-      function abilitaPolygonModeSeServe() {
-        const isPhone = window.matchMedia("(max-width: 700px)").matches;
-        // attiva su telefono (puoi decidere di attivarla sempre, anche su tablet)
-        if (isPhone) document.body.classList.add("table-polygon");
-        else document.body.classList.remove("table-polygon");
-      }
-      
-      function layoutPolygon() {
-        if (!document.body.classList.contains("table-polygon")) return;
-      
-        const headerH = 60;
-      
-        // area reale disponibile sul telefono (schermo), indipendente dalla board
-        const W = window.innerWidth;
-        const H = window.innerHeight - headerH;
-      
-        const cx = W / 2;
-        const cy = headerH + (H / 2);
-      
-        const n = numGiocatori;
-        const startAngle = -90;
-      
-        // scala in base al numero giocatori
-        const scale = (n >= 7) ? 0.75 : (n === 6 ? 0.82 : (n === 5 ? 0.9 : 1));
-      
-        // prendo una misura box reale (dopo render)
-        const box1 = document.getElementById("box1");
-        const bw = box1 ? box1.offsetWidth : 160;
-        const bh = box1 ? box1.offsetHeight : 180;
-      
-        // raggio “spinto” verso i bordi
-        const radius = Math.max(
-          0,
-          Math.min(W, H) / 2 - Math.max(bw, bh) * 0.55
-        );
-      
-        for (let i = 1; i <= n; i++) {
-          const box = document.getElementById("box" + i);
-          if (!box) continue;
-      
-          const w = box.offsetWidth;
-          const h = box.offsetHeight;
-      
-          const angle = startAngle + (360 / n) * (i - 1);
-          const rad = angle * Math.PI / 180;
-      
-          const x = cx + radius * Math.cos(rad) - w / 2;
-          const y = cy + radius * Math.sin(rad) - h / 2;
-      
-          box.style.left = `${x}px`;
-          box.style.top  = `${y}px`;
-      
-          box.style.transform = `rotate(${angle + 180}deg) scale(${scale})`;
-        }
-      }
+    // ===== Modalità poligono robusta =====
+    function abilitaPolygonModeSeServe() {
+      // Preferiamo “mobile true” in modo stabile: width reale + touch
+      const isSmall = window.matchMedia("(max-width: 820px)").matches;
+      const isTouch = (navigator.maxTouchPoints || 0) > 0;
+      if (isSmall && isTouch) document.body.classList.add("table-polygon");
+      else document.body.classList.remove("table-polygon");
+    }
 
-      
-      // attiva e ridisegna
+    function computeBoxWidth(n, W, H){
+      // spazio utile (tolgo aree top/bottom dei bottoni fissi)
+      const topSafe = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topSafe')) || 64;
+      const bottomSafe = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bottomSafe')) || 70;
+
+      const usableW = W;
+      const usableH = Math.max(200, H - topSafe - bottomSafe);
+
+      // raggio "grezzo" prima della dimensione box
+      const baseR = Math.min(usableW, usableH) / 2;
+
+      // larghezza teorica per non sovrapporre: porzione di circonferenza per giocatore
+      const perPlayer = (2 * Math.PI * baseR) / n;
+
+      // un po' di margine: il box deve stare dentro quel segmento
+      const target = perPlayer * 0.70;
+
+      // limiti min/max per tenere usabile +/-
+      const minW = (n <= 3) ? 200 : (n === 4 ? 180 : 150);
+      const maxW = (n <= 3) ? 280 : (n === 4 ? 240 : 210);
+
+      return Math.max(minW, Math.min(maxW, target));
+    }
+
+    function layoutPolygon() {
+      if (!document.body.classList.contains("table-polygon")) return;
+
+      const topSafe = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topSafe')) || 64;
+      const bottomSafe = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bottomSafe')) || 70;
+
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+
+      const usableH = H - topSafe - bottomSafe;
+      const cx = W / 2;
+      const cy = topSafe + (usableH / 2);
+
+      const n = numGiocatori;
+      const startAngle = -90;
+
+      // 1) calcola dimensione box e impostala via CSS var
+      const boxW = computeBoxWidth(n, W, H);
+      document.documentElement.style.setProperty('--boxW', `${Math.round(boxW)}px`);
+
+      // 2) misura box reale dopo che CSS var è stata applicata
+      const b1 = document.getElementById('box1');
+      const bw = b1 ? b1.offsetWidth : boxW;
+      const bh = b1 ? b1.offsetHeight : (boxW * 0.9);
+
+      // 3) raggio definitivo: spingi ai bordi ma senza far uscire i box
+      const margin = 10;
+      const radius = Math.max(
+        0,
+        Math.min(W, usableH) / 2 - Math.max(bw, bh) / 2 - margin
+      );
+
+      // scala (leggerissima) per 6+ senza rendere minuscoli
+      const scale = (n >= 8) ? 0.82 : (n === 7 ? 0.86 : (n === 6 ? 0.90 : 1));
+
+      for (let i = 1; i <= n; i++) {
+        const box = document.getElementById("box" + i);
+        if (!box) continue;
+
+        const w = box.offsetWidth;
+        const h = box.offsetHeight;
+
+        const angle = startAngle + (360 / n) * (i - 1);
+        const rad = angle * Math.PI / 180;
+
+        const x = cx + radius * Math.cos(rad) - w / 2;
+        const y = cy + radius * Math.sin(rad) - h / 2;
+
+        box.style.left = `${x}px`;
+        box.style.top  = `${y}px`;
+        box.style.transform = `rotate(${angle + 180}deg) scale(${scale})`;
+      }
+    }
+
+    // Esegui layout in modo “stabile”: DOM pronto + load + micro-retry
+    function relayoutStable() {
       abilitaPolygonModeSeServe();
-      setTimeout(layoutPolygon, 0);
+      // 3 tentativi ravvicinati: utile quando le misure cambiano dopo paint/font
+      let tries = 0;
+      const tick = () => {
+        tries++;
+        layoutPolygon();
+        if (tries < 3) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
 
-      
-      window.addEventListener("resize", () => {
-        abilitaPolygonModeSeServe();
-        // piccolo delay per misure corrette dopo resize/orientation change
-        setTimeout(layoutPolygon, 60);
-      });
-      
-      // utile su telefono quando ruoti lo schermo
-      window.addEventListener("orientationchange", () => {
-        setTimeout(() => { abilitaPolygonModeSeServe(); layoutPolygon(); }, 120);
-      });
+    document.addEventListener('DOMContentLoaded', relayoutStable);
+    window.addEventListener('load', relayoutStable);
 
+    window.addEventListener("resize", () => {
+      abilitaPolygonModeSeServe();
+      setTimeout(layoutPolygon, 60);
+    });
+
+    window.addEventListener("orientationchange", () => {
+      setTimeout(relayoutStable, 120);
+    });
+
+    // ===== Logica partita =====
     function getNome(id) {
       return document.getElementById('nomeGiocatore' + id).textContent.trim();
     }
@@ -315,7 +401,6 @@
       const box = document.getElementById('box' + id);
       box.classList.add('eliminato');
 
-      // Optional: scritta "ELIMINATO"
       const tag = document.createElement('div');
       tag.style.marginTop = "10px";
       tag.style.fontWeight = "bold";
@@ -330,10 +415,7 @@
       return null;
     }
 
-
-    
     function cambia(id, delta) {
-      // se eliminato non fa nulla (in teoria già bloccato dal pointer-events)
       if (!stato.attivi.has(id)) return;
 
       const el = document.getElementById('punti' + id);
@@ -341,14 +423,11 @@
       val = Math.max(0, Math.min(20, val + delta));
       el.textContent = val;
 
-      // Vittoria “classica” a 20
       if (val === 20) {
         mostraVittoria(getNome(id));
       }
     }
 
-
-    
     function modificaNome(id) {
       if (!stato.attivi.has(id)) return;
 
@@ -381,11 +460,8 @@
       input.select();
     }
 
-    // Qui è la regola che volevi:
-    // "Ho finito il mazzo" => quel giocatore perde/eliminato.
+    // "Ho finito il mazzo" => quel giocatore perde
     function fineMazzo(id) {
-      // Se erano in 2 (o comunque se restano 2 attivi prima di eliminare),
-      // eliminando questo, l'altro vince subito.
       if (!stato.attivi.has(id)) return;
 
       if (activeCount() === 2) {
@@ -396,10 +472,8 @@
         return;
       }
 
-      // Se >2, elimina e si continua
       eliminaGiocatore(id);
 
-      // Se dopo l’eliminazione resta 1 solo attivo, quello vince
       if (activeCount() === 1) {
         const [solo] = Array.from(stato.attivi);
         mostraVittoria(getNome(solo));
@@ -437,7 +511,6 @@
 
       overlay.appendChild(img);
 
-      // Se vuoi mantenere l’effetto “dopo 10 secondi”, lascia così:
       setTimeout(() => {
         overlay.appendChild(msg);
         overlay.appendChild(buttons);
@@ -449,12 +522,10 @@
     function resetPunti() {
       for (let i = 1; i <= stato.numGiocatori; i++) {
         const punti = document.getElementById('punti' + i);
-        if (punti) {
-          punti.textContent = "0";
-        }
+        if (punti) punti.textContent = "0";
       }
     }
-
   </script>
 </body>
 </html>
+
