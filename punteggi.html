@@ -155,10 +155,12 @@
     
     body.table-polygon .segnapunto {
       position: absolute;
-      width: min(46vw, 200px);   /* adattivo telefono */
-      max-width: 220px;
+      width: clamp(120px, 28vw, 180px);   /* adattivo telefono */
+      max-width: 180px;
       transform-origin: center center;
       border-radius: 12px;
+      padding: 0.7em;
+      transform: scale(var(--scaleBox, 1));
     }
     
     /* opzionale: su schermi molto piccoli, rimpicciolisce un po' */
@@ -240,9 +242,21 @@
         const cy = rect.height / 2;
       
         // raggio: lascia spazio per i box
-        const radius = Math.max(0, Math.min(cx, cy) - 120);
+        // stima dimensione box (prendiamo il primo che esiste)
+        const box1 = document.getElementById("box1");
+        const bw = box1 ? box1.offsetWidth : 160;
+        const bh = box1 ? box1.offsetHeight : 180;
+        
+        // raggio: usa quasi tutto lo schermo, lasciando mezzo box di margine
+        const radius = Math.max(0, Math.min(cx, cy) - Math.max(bw, bh) / 2 - 10);
+
       
         const n = numGiocatori;
+        document.documentElement.style.setProperty(
+          "--scaleBox",
+          n >= 6 ? "0.85" : n === 5 ? "0.9" : "1"
+        );
+
       
         // angolo iniziale: metto il giocatore 1 "in alto" (verso nord)
         const startAngle = -90; // gradi
@@ -270,7 +284,9 @@
           // Regola semplice e efficace: ruota di angle+90 (orientamento tangenziale) oppure angle+180 (radiale).
           // Qui usiamo radiale: ogni box "guarda" il suo giocatore.
           const rotate = angle + 180;
-          box.style.transform = `rotate(${rotate}deg)`;
+          const scale = (n >= 6) ? 0.85 : (n === 5 ? 0.9 : 1);
+          box.style.transform = `rotate(${angle + 180}deg) scale(${scale})`;
+
         }
       }
       
